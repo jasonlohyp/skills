@@ -50,7 +50,7 @@ macOS / Linux / Git Bash:
 
 ```bash
 mkdir -p ~/.claude/hooks
-curl -o ~/.claude/hooks/quiet-noisy.js https://raw.githubusercontent.com/<your-github-name>/claude-hooks/main/quiet-noisy/quiet-noisy.js
+curl -o ~/.claude/hooks/quiet-noisy.js https://raw.githubusercontent.com/jasonlohyp/skills/main/hooks/quiet-noisy/quiet-noisy.js
 ```
 
 You can also download `quiet-noisy.js` from this folder and save it in `~/.claude/hooks/`.
