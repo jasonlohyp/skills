@@ -15,6 +15,7 @@ After:   npm install --verbose express  →   16 lines
 - **Keeps short output whole.** If the output is 40 lines or less, Claude gets all of it.
 - **Cuts long output.** Claude gets only the error and fail lines, plus the last 15 lines. The last lines hold the summary.
 - **Keeps the exit code.** A failed build still shows as failed.
+- **Works in Bash and PowerShell.** It covers both of Claude's shell tools, so it also works on Windows.
 - **Leaves all other commands alone.**
 
 For long output, the first line tells Claude what happened:
@@ -35,12 +36,13 @@ The Claude Code docs have a small example hook on the [Manage costs](https://cod
 | Exit code | Lost, so a failed test can look like a pass | Kept |
 | Needs `jq` | Yes | No. It needs Node only |
 | Permission prompts | Skips them for test commands | Does not change them |
+| PowerShell | Not covered | Covered |
 
 ## Requirements
 
 - [Claude Code](https://code.claude.com)
 - [Node.js](https://nodejs.org)
-- Claude's Bash tool. This is the default on macOS and Linux. On Windows, you need [Git for Windows](https://git-scm.com/download/win), which includes Git Bash.
+- macOS, Linux or Windows. On Windows, the hook works in Claude's PowerShell tool and in its Bash tool (Git Bash).
 
 ## Install
 
@@ -51,6 +53,13 @@ macOS / Linux / Git Bash:
 ```bash
 mkdir -p ~/.claude/hooks
 curl -o ~/.claude/hooks/quiet-noisy.js https://raw.githubusercontent.com/jasonlohyp/skills/main/hooks/quiet-noisy/quiet-noisy.js
+```
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.claude\hooks" | Out-Null
+Invoke-WebRequest https://raw.githubusercontent.com/jasonlohyp/skills/main/hooks/quiet-noisy/quiet-noisy.js -OutFile "$HOME\.claude\hooks\quiet-noisy.js" -UseBasicParsing
 ```
 
 You can also download `quiet-noisy.js` from this folder and save it in `~/.claude/hooks/`.
@@ -71,7 +80,7 @@ Open `~/.claude/settings.json`. Add the `hooks` block below. If the file already
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",
@@ -85,7 +94,7 @@ Open `~/.claude/settings.json`. Add the `hooks` block below. If the file already
 }
 ```
 
-If you already have a `PreToolUse` list, add only the inner `{ "matcher": "Bash", ... }` object to it.
+If you already have a `PreToolUse` list, add only the inner `{ "matcher": "Bash|PowerShell", ... }` object to it.
 
 **Step 3. Restart Claude Code.**
 
@@ -111,10 +120,18 @@ echo '{"tool_input":{"command":"npm test"}}' | node ~/.claude/hooks/quiet-noisy.
 
 ## Get the full output
 
-Put `QUIET_HOOK_OFF=1` at the start of a command. The hook then skips that command.
+Put `QUIET_HOOK_OFF` in the command. The hook then skips that command.
+
+Bash:
 
 ```bash
 QUIET_HOOK_OFF=1 npm install --verbose
+```
+
+PowerShell:
+
+```powershell
+$env:QUIET_HOOK_OFF=1; npm install --verbose
 ```
 
 ## Uninstall
@@ -126,6 +143,6 @@ QUIET_HOOK_OFF=1 npm install --verbose
 ## Notes
 
 - Claude Code does not run this hook in a project whose settings contain `"disableAllHooks": true`.
-- The hook covers the Bash tool only. Commands that Claude runs through the PowerShell tool are not filtered.
+- If you installed an older version with `"matcher": "Bash"`, change it to `"Bash|PowerShell"` to cover PowerShell too.
 - To change which commands it catches, edit the `NOISY` list at the top of `quiet-noisy.js`.
 - To change which lines it keeps, edit the `IMPORTANT` pattern.

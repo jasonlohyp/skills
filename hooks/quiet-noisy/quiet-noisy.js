@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-// Claude Code PreToolUse hook (matcher: Bash).
+// Claude Code PreToolUse hook (matcher: Bash|PowerShell).
 // Hook mode (no args): reads the tool call JSON on stdin. If the command is a
 // noisy one (install / build / test / progress bars), it rewrites the command
 // so its output is piped through this same script in --filter mode.
 // Filter mode (--filter): short output passes through whole; long output is cut
 // down to error/failure lines (with a little context) plus the final summary.
-// Bypass: put QUIET_HOOK_OFF=1 anywhere in the command.
+// Bypass: put QUIET_HOOK_OFF anywhere in the command
+//   Bash:       QUIET_HOOK_OFF=1 npm install
+//   PowerShell: $env:QUIET_HOOK_OFF=1; npm install
 
 const fs = require('fs');
 
@@ -42,6 +44,25 @@ const IMPORTANT = new RegExp([
   /\bERR!|\w+Error\b|✗|✖|×/.source,
 ].join('|'), 'i');
 
+function wrapBash(cmd) {
+  return `{ ${cmd}\n} 2>&1 | node "${SELF}" --filter; exit \${PIPESTATUS[0]}`;
+}
+
+// Works in Windows PowerShell 5.1 and PowerShell 7. Output is collected first,
+// so the exit code of the real command is saved before node runs. Stderr lines
+// arrive as error records; Exception.Message turns them back into plain text.
+function wrapPowerShell(cmd) {
+  const toText = 'if ($_ -is [System.Management.Automation.ErrorRecord]) { $_.Exception.Message } else { "$_" }';
+  return [
+    '$global:LASTEXITCODE = 0',
+    '$OutputEncoding = New-Object System.Text.UTF8Encoding $false',
+    `$__qOut = & {\n${cmd}\n} 2>&1 | ForEach-Object { ${toText} }`,
+    '$__qCode = $LASTEXITCODE',
+    `$__qOut | node "${SELF}" --filter`,
+    'exit $__qCode',
+  ].join('; ');
+}
+
 function hookMode() {
   let input;
   try { input = JSON.parse(fs.readFileSync(0, 'utf8')); } catch { return; }
@@ -50,7 +71,7 @@ function hookMode() {
   if (cmd.includes('QUIET_HOOK_OFF') || cmd.includes('quiet-noisy.js')) return;
   if (!NOISY.some((re) => re.test(cmd))) return;
 
-  const wrapped = `{ ${cmd}\n} 2>&1 | node "${SELF}" --filter; exit \${PIPESTATUS[0]}`;
+  const wrapped = input.tool_name === 'PowerShell' ? wrapPowerShell(cmd) : wrapBash(cmd);
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: 'PreToolUse',
