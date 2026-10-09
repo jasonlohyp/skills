@@ -8,7 +8,9 @@ Each item has its own folder with a README that explains what it does and how to
 
 A skill is a set of instructions that Claude loads only when a task needs it.
 
-_None yet._
+| Skill | What it does |
+|---|---|
+| [lean-agent-build](skills/lean-agent-build/) | Builds an app or game over many sessions with fresh AI reviewers and a review loop with a hard stop, on a tight weekly usage limit. |
 
 ## Hooks
 
