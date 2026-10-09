@@ -75,3 +75,18 @@ Watch your burn with `/usage` once per session.
 ## How it differs from a fan-out loop
 
 A fan-out loop ("spawn sub-agents on everything, loop until wowed") gets great results but burns a weekly limit in hours. This skill gives up parallel speed and endless polish. It keeps fresh, honest reviews, with a hard stop on cost.
+
+| | gauntlet-loop (fan-out) | lean-agent-build |
+|---|---|---|
+| What it gives you | One prompt: "fan out, loop until wowed" | A full working method for many sessions |
+| Goal | Highest quality | Honest reviews at the lowest cost |
+| Agents | No limit, in parallel | 1 at a time, only when a step needs it |
+| Models | Not set | Sonnet everywhere; Opus only for a hard code review |
+| Loop stop | "Utterly wowed" | 0 MUST FIX, or 3 rounds, then the owner decides |
+| Memory between sessions | None | STATUS + review log + git commits and a `reviewed` tag |
+| Owner control | Low | High: closed decisions, playtests only on the owner's yes |
+| Weak point | Uses up a weekly limit in hours | Bigger skill file (about 2,500 words); slower, less "wow" |
+| Best for | One big build with no usage limit | Hobby projects over weeks on a tight limit |
+| Score | 5/10 | 8/10 |
+
+Scores come from a 20-round loop of fresh, independent Opus reviewers on this skill. The gauntlet-loop score is the author's estimate.
