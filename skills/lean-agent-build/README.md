@@ -87,5 +87,3 @@ A fan-out loop ("spawn sub-agents on everything, loop until wowed") gets great r
 | Owner control | Low | High: closed decisions, playtests only on the owner's yes |
 | Weak point | Uses up a weekly limit in hours | Bigger skill file (about 2,500 words); slower, less "wow" |
 | Best for | One big build with no usage limit | Hobby projects over weeks on a tight limit |
-
-Scores come from a 20-round loop of fresh, independent Opus reviewers on this skill. The gauntlet-loop score is the author's estimate.
