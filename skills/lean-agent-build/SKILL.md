@@ -23,14 +23,15 @@ Check your model in the system prompt. Not Sonnet? Tell the owner once: run `/mo
 
 ## Set up a new project (once)
 1. No spec yet? Use `superpowers:brainstorming` with the owner, but save the spec as `docs/SPEC.md` and stop when the spec is written: do not hand off to `writing-plans`. (No superpowers: draft it with at most 3 questions.) Do not review it yet.
-2. From `templates.md` in this skill folder, create: `.claude/settings.json` (lead on Sonnet), `CLAUDE.md`, `docs/STATUS.md`, `docs/PLAN.md`, `docs/REVIEW-LOG.md`, `docs/LATER.md`, a `## Owner decisions (closed)` section at the end of the spec, and `.claude/agents/<name>.md` for each agent the project needs (keep `release-checker` if the app will go to a store).
+2. From `templates.md` in this skill folder, create: `.claude/settings.json` (lead on Sonnet), `CLAUDE.md`, `docs/STATUS.md`, `docs/PLAN.md`, `docs/REVIEW-LOG.md`, `docs/LATER.md`, a `## Owner decisions (closed)` section at the end of the spec, and `.claude/agents/<name>.md` for each agent the project needs (keep `release-checker` if the app will go to a store; add `art-director` and `artist` only if the project needs art, see step 4).
 3. Screenshots.
    - **Browser app:** (a) every screen opens from the URL (`?screen=<name>`; seeded game states and mockups too, mockups at `mockups/<name>.html`). (b) Record the start command and `BASE_URL` in CLAUDE.md (Claude desktop app: also `.claude/launch.json`). No dev server yet? Use `npx -y http-server -p 5173 -c-1`; the step that adds the real server updates (b). (c) `npm i -D playwright`, then `npx playwright install chromium`. (d) Copy `shots.mjs` from this skill folder to `scripts/shots.mjs`. It takes a base URL, a folder and screen names, and prints the PNG paths.
    - **Not a browser app:** mockups are still web pages, so set up (b)–(d) for them. For the real app, the owner drops phone shots into the folder, and the visual loop runs only when the owner says so.
-4. Set STATUS **Next** to "design-critic loop on the spec" (or "PLAN step 1" if the spec was already reviewed). If the look matters, PLAN step 1 is "mockups": static `mockups/<name>.html` pages, a `step 1: plan` commit, a visual-critic loop, then **stop and show the owner the mockups**. Apply the owner's changes, add the chosen look to Owner decisions, then build-order step 5 (update STATUS, `step 1: done` commit, `git tag -f reviewed`).
-5. Git: `git init` if needed. Write `.gitignore` with the stack's standard ignores (deps, build output, `.env*` but `!.env.example`) plus `docs/shots/` and `.claude/settings.local.json`. Check `git status --short` before the first add. Then `git add -A`, `git commit -m "setup"` and `git tag -f reviewed` (setup tooling is exempt from review; on an existing codebase, tell the owner the tag here means "baseline": the old code was not reviewed, or run one code-reviewer pass on the riskiest files if the owner says yes). No remote? Remove "push" from the house rules.
+4. **Art (only if the project needs art; skip otherwise).** Create the `art-director` and `artist` agents, `scripts/art/art.mjs` and `scripts/art/package.json` (copy both from this skill folder), `<art folder>/README.md` (file name and role per asset) and `docs/art-log.md`. Run `npm install` in `scripts/art`. Add the art flow (see Art flow below) to the CLAUDE.md house rules. Tell the owner to set the key once, outside the project (Windows: `setx OPENAI_API_KEY "..."`; Mac/Linux: add it to the shell profile), then open a new session. Never ask the owner to paste a key in chat. Ask the owner the art questions in Talking to the owner.
+5. Set STATUS **Next** to "design-critic loop on the spec" (or "PLAN step 1" if the spec was already reviewed). If the look matters, PLAN step 1 is "mockups": static `mockups/<name>.html` pages, a `step 1: plan` commit, a visual-critic loop, then **stop and show the owner the mockups**. Apply the owner's changes, add the chosen look to Owner decisions, then build-order step 5 (update STATUS, `step 1: done` commit, `git tag -f reviewed`).
+6. Git: `git init` if needed. Write `.gitignore` with the stack's standard ignores (deps, build output, `.env*` but `!.env.example`) plus `docs/shots/` and `.claude/settings.local.json`. Check `git status --short` before the first add. Then `git add -A`, `git commit -m "setup"` and `git tag -f reviewed` (setup tooling is exempt from review; on an existing codebase, tell the owner the tag here means "baseline": the old code was not reviewed, or run one code-reviewer pass on the riskiest files if the owner says yes). No remote? Remove "push" from the house rules.
    Later, when an app scaffold needs an empty folder (for example `create-expo-app`), make it in a temp folder and merge it in: never replace `CLAUDE.md`, `docs/`, `.claude/`, `scripts/`, `mockups/`; merge `package.json` and `.gitignore`.
-6. A new `.claude/agents/` folder loads only at session start. Tell the owner to quit and open a new session (CLI: plain `claude`, not `--continue`; the old chat is waste now).
+7. A new `.claude/agents/` folder loads only at session start. Tell the owner to quit and open a new session (CLI: plain `claude`, not `--continue`; the old chat is waste now).
 
 ## When to use a subagent
 - **Reviewers always run as subagents.** They exist to be fresh and unbiased.
@@ -62,6 +63,7 @@ After `/clear`, run `git log -1 --format=%s`. The last commit name picks the row
 | `step N: done` | the next PLAN step, or push and stop if the batch is done |
 | `play: logged` | the next PLAN step, or stop |
 | `feedback: logged` | the next PLAN step |
+| `art: logged` | the next PLAN step |
 
 A loop is done when the log's last round for it has 0 MUST FIX, or round 3/4 went to the owner. Tag `reviewed` only at `step N: done` and at the end of the spec loop.
 
@@ -73,9 +75,11 @@ A loop is done when the log's last round for it has 0 MUST FIX, or round 3/4 wen
 | code-reviewer | Sonnet; `model: "opus"` on the call when the PLAN step says `Opus review: yes` (then for every round of that step) | end of each build step |
 | playtester | Sonnet | **only on the owner's yes, each run** (most expensive) |
 | builder | Sonnet | big build steps only |
+| art-director | Sonnet | **only on the owner's yes for an art batch**: DIRECT once before any image, REVIEW once per draft |
+| artist | Sonnet | **only on the owner's yes, each run** (costs money per image) |
 | release-checker | Sonnet | once before each App Store or store submit: privacy, permissions, data, purchases, store rules |
 
-One agent at a time, one job each. No parallel team. No per-task reviewers.
+One agent at a time, one job each (the artist and art-director too). No parallel team. No per-task reviewers.
 
 **Order per build step N:**
 1. Write step N in `docs/PLAN.md`. `git add -A`, then `git commit -m "step N: plan"`. Design-critic loop on it, if the table says so.
@@ -109,6 +113,8 @@ One round:
 - **Spec loop done** (setup): the last `wip: design-critic round N` commit also sets STATUS Next to "PLAN step 1"; run `git tag -f reviewed` right after it. Then show the owner the top 3 design SHOULD FIX items, one line each, with your pick. Picked items go into the first build step (after mockups, if any), so its design check covers them.
 - Run a step's rounds back to back. A spawn within the cache window of the last one reuses part of its cache (same agent and model only).
 
+**Art flow** (only if the project has the art agents; images cost money): (1) art-director DIRECT writes the brief and the prompts; the lead saves them in `docs/ART-BRIEF.md`. (2) Artist makes ONE low-quality draft per prompt, word for word. (3) Art-director REVIEW says PASS or FAIL. (4) On PASS, the artist makes one medium (or high) final. On FAIL, retry with the changed prompt: max 2 retries per asset, then ask the owner. Never prompt the artist without a brief. The owner judges the final look. Every image is logged in `docs/art-log.md`; commit each asset as `art: logged`.
+
 **Playtester:** one run per owner yes. A partial report: tell the owner; never re-run without a yes. Start the app (see Dev server below), pass the URL, stop the server after the report. It cannot see the log or spec, so drop its findings that hit an owner decision or a rejected item. Log the rest as step `play`: each MUST FIX becomes a PLAN step only if the owner says yes; the rest go to LATER.md. Then `git add -A`, then `git commit -m "play: logged"`.
 
 **Dev server:** Claude desktop app: `preview_start` (stop with `preview_stop`). CLI: Bash with `run_in_background`; read its output (or use Monitor) until the URL appears before you use it; stop it with TaskStop when done.
@@ -120,7 +126,7 @@ One round:
 - A phase (spec, mockups, build v1, polish) ends when the owner says so or PLAN moves on. At phase end: in the log, delete fixed and one-off rejected rows, move lasting rejections into Owner decisions, move deferred rows to LATER.md, and keep owner-accepted `open` rows until play-tested. In STATUS, move old Done items out of STATUS (keep it under 40 lines).
 
 ## Talking to the owner
-Short and plain. Decide routine design and polish yourself and say the call in one line. Ask only about scope, cost (playtests, Opus for the lead, extra rounds) or a house rule. Two options max, with your pick. When the owner decides something, add it to Owner decisions.
+Short and plain. Decide routine design and polish yourself and say the call in one line. Ask only about scope, cost (playtests, Opus for the lead, extra rounds, image budget) or a house rule. For art, get a decision once on AI-art rules: store disclosure, copyright, and no real studio or artist names in prompts. Two options max, with your pick. When the owner decides something, add it to Owner decisions.
 
 ## Red flags: stop and re-read this skill
 | Thought | Reality |
@@ -133,4 +139,6 @@ Short and plain. Decide routine design and polish yourself and say the call in o
 | "Loop until it's good" | Fresh harsh critics always find something. 0 MUST FIX or 3 rounds. |
 | "Keep going, this session has context" | Context lives in STATUS, the log and git. Commit, update, `/clear`. |
 | "Pass the agent a summary of the chat" | Name the file, or paste a small doc diff. The agent reads only that. |
+| "Let the artist loop until it looks good" | Max 2 retries per asset. The owner judges the look. Every image costs money. |
+| "Install a small community MCP server for images" | Check its source and age first. Prefer the official library in a small script we own. |
 | "Let an architect agent write the spec" | A subagent cannot ask the owner anything. The lead writes the spec with the owner; agents only review it. |

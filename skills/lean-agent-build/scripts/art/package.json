@@ -1,0 +1,6 @@
+{
+  "name": "art-tools",
+  "private": true,
+  "type": "module",
+  "dependencies": { "openai": "^4.95.1" }
+}
