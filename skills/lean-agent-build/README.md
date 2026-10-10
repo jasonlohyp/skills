@@ -34,8 +34,11 @@ docs/LATER.md              ideas that are out of scope
   code-reviewer.md         reviews the diff of a build step
   playtester.md            plays the build blind in a browser
   release-checker.md       checks privacy, permissions and store rules before a submit
+  art-director.md          optional, for art: writes image prompts, judges drafts
+  artist.md                optional, for art: makes images with the OpenAI library
   builder.md               builds one big step from a brief
 scripts/shots.mjs          takes screenshots for the visual critic
+scripts/art/art.mjs        optional: makes one image, logs it in docs/art-log.md
 ```
 
 ## Install
