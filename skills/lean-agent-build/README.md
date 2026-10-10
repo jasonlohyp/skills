@@ -1,8 +1,13 @@
 # lean-agent-build
 
-A Claude Code skill for building an app or game over many sessions, with fresh AI reviewers, on a tight weekly usage limit.
+A Claude Code skill for **solo builders** who build an app or game over many sessions, with fresh AI reviewers, on a tight weekly usage limit.
 
-Fresh subagents give honest reviews, because they have not seen the chat. But reviewers, long sessions and big models use up a weekly limit fast. This skill keeps the reviews and cuts the cost.
+One long chat that does every phase of a project gets slow and costly, loses track of what was decided, and grades its own work. This skill sets up Claude Code as an **orchestrator**:
+
+- **The lead session** (the orchestrator) talks with you, writes the spec and the plan, builds small steps, and decides.
+- **Subagents** do two jobs only: review with fresh eyes (they have not seen the chat, so they are honest), or build one big step from a short brief.
+
+Reviewers, long sessions and big models use up a weekly limit fast. This skill keeps the reviews and cuts the cost.
 
 ## What it does
 
@@ -28,6 +33,7 @@ docs/LATER.md              ideas that are out of scope
   visual-critic.md         reviews screenshots
   code-reviewer.md         reviews the diff of a build step
   playtester.md            plays the build blind in a browser
+  release-checker.md       checks privacy, permissions and store rules before a submit
   builder.md               builds one big step from a brief
 scripts/shots.mjs          takes screenshots for the visual critic
 ```
@@ -63,6 +69,24 @@ Copy-Item -Recurse skills\skills\lean-agent-build $HOME\.claude\skills\
 Or for one project only, copy the folder to `<project>/.claude/skills/lean-agent-build/`.
 
 To update, pull and copy the folder again.
+
+## Works best with
+
+These plugins are all in Anthropic's official marketplace. The skill calls each one at the right moment if it is installed:
+
+| Plugin | Used for |
+|---|---|
+| `superpowers` | Brainstorming the spec, test-first coding, debugging |
+| `frontend-design` | Mockups and UI with a strong visual style |
+| `expo` | iOS and Android apps with Expo: native UI, dev builds, App Store submit |
+
+Install each one in a Claude Code session (terminal), for example:
+
+```text
+/plugin install superpowers@claude-plugins-official
+```
+
+In the Claude desktop app, use **+ > Plugins > Add plugin** instead.
 
 ## Use
 

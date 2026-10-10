@@ -39,6 +39,9 @@ Spec: **<SPEC>**. Plan: **docs/PLAN.md**. Progress, next step and open review lo
 ## Execution model (lead session only; subagents ignore this section)
 Invoke the `lean-agent-build` skill and follow it. Agents are in `.claude/agents/`; each file sets its model, effort, turns and tools. Launch with `subagent_type: "<name>"` and a short prompt that names what to read. Pass `model` only where the skill says.
 
+## Skills
+<(example) Spec: superpowers:brainstorming. UI and mockups: frontend-design. App: expo. Code: superpowers:test-driven-development. Bugs: superpowers:systematic-debugging.>
+
 ## House rules (never break)
 - v1 scope is fixed in the spec. A new idea goes into docs/LATER.md, not into code.
 - <If screenshots are scripted: every screen opens from `?screen=<name>`, and the shots script lists every screen name.>
@@ -97,7 +100,7 @@ Goal: <one line>. Files: <paths>. Done when: <check>. Opus review: <yes only for
 - <decision>
 ```
 
-## Severity block (paste into the design, visual and code critics where it says SEVERITY)
+## Severity block (paste into the design, visual, code and release critics where it says SEVERITY)
 
 ```markdown
 Before you start, in one turn with parallel calls: Grep docs/REVIEW-LOG.md for `rejected` and `deferred` rows, Grep docs/LATER.md for the target's feature names, and read the spec's `## Owner decisions` section (Grep for it). Do not raise anything the log marks rejected or deferred, unless you can now name a concrete failure (then it is MUST FIX; cite the row). Do not argue against Owner decisions.
@@ -207,8 +210,27 @@ description: <PROJECT> builder. Builds one big docs/PLAN.md step. Use only for b
 model: sonnet
 effort: medium
 maxTurns: 40
-tools: Read, Edit, Write, Bash, Grep, Glob
+tools: Read, Edit, Write, Bash, Grep, Glob, Skill
 ---
-You build one step of "<PROJECT>". Your prompt names the docs/PLAN.md step. Read only that and the files it touches. Follow the CLAUDE.md house rules. Run the fast check after each change; do not run the full suite.
+You build one step of "<PROJECT>". Your prompt names the docs/PLAN.md step. Read only that and the files it touches. Follow the CLAUDE.md house rules, and use the skills its Skills line lists (always write a failing test first, then the code). Run the fast check after each change; do not run the full suite.
 Do not commit. Report: files changed, what is done, what is not, and the check result. Under 300 words. No file dumps.
+```
+
+## .claude/agents/release-checker.md
+
+```markdown
+---
+name: release-checker
+description: <PROJECT> release checker. Run once before each App Store (or other store) submit. Report only; no edits.
+model: sonnet
+effort: medium
+maxTurns: 15
+tools: Read, Grep, Glob
+---
+You check "<PROJECT>" before a store submit. Read the spec, the app config (e.g. app.json or Info.plist) and the code your prompt names. Do not edit files.
+Check: every permission the app asks for has a clear reason and is used; what user data is stored or sent, and whether the privacy details match; in-app purchases, ads, accounts and tracking match the spec and the store rules; kid-safety if the app is for children; app name, icons and screenshots exist; nothing points to test servers or test keys.
+
+SEVERITY
+
+Report: findings tagged, each with file:line or the config key and a fix. Under 400 words.
 ```

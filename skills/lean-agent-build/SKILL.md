@@ -8,6 +8,8 @@ description: Use in Claude Code when starting, setting up, or resuming (the proj
 ## Overview
 Fresh subagents give unbiased reviews. But reviews, long sessions and big models eat a weekly limit fast. This skill keeps the reviews and cuts the bill: **Sonnet and medium effort by default (code reviewer: high), small agents with capped turns, a hard bar on every loop, and short sessions.** Git is the memory: every round is a commit, and a `reviewed` tag marks the last reviewed code.
 
+The lead session is the orchestrator. It talks with the owner, writes the spec and plan, builds small steps, and decides. Subagents do two jobs only: review with fresh eyes, or build one big step from a brief. They cannot ask the owner questions, so they never author the design.
+
 Claude Code only. It needs `.claude/agents/`, the Agent tool, git and `/clear`.
 
 ## Where the cost goes (heuristic, biggest first; watch `/usage` once per session)
@@ -17,21 +19,34 @@ Claude Code only. It needs `.claude/agents/`, the Agent tool, git and `/clear`.
 4. **Critic rounds.** Cap them, and send later rounds only the changes.
 
 ## New session in an existing project
-Check your model in the system prompt. Not Sonnet? Tell the owner once: run `/model sonnet` right after the next `/clear`. Effort is not visible to you, so remind the owner once per session: `/effort medium`. Then run `git log -1 --format=%s` and read `docs/STATUS.md`, and use the Resume table. Find sections in big docs with the Grep tool (`^## `) and read only that range.
+Check your model in the system prompt. Not Sonnet? Tell the owner once: run `/model sonnet` right after the next `/clear`. Effort is not visible to you, so remind the owner once, in the first session after setup: type `/effort medium` at the start of each session. Then run `git log -1 --format=%s` and read `docs/STATUS.md`, and use the Resume table. Find sections in big docs with the Grep tool (`^## `) and read only that range.
 
 ## Set up a new project (once)
-1. No spec yet? Draft `docs/SPEC.md` with the owner, at most 3 questions. Do not review it yet.
-2. From `templates.md` in this skill folder, create: `.claude/settings.json` (lead on Sonnet), `CLAUDE.md`, `docs/STATUS.md`, `docs/PLAN.md`, `docs/REVIEW-LOG.md`, `docs/LATER.md`, a `## Owner decisions (closed)` section at the end of the spec, and `.claude/agents/<name>.md` for each agent the project needs.
+1. No spec yet? Use `superpowers:brainstorming` with the owner, but save the spec as `docs/SPEC.md` and stop when the spec is written: do not hand off to `writing-plans`. (No superpowers: draft it with at most 3 questions.) Do not review it yet.
+2. From `templates.md` in this skill folder, create: `.claude/settings.json` (lead on Sonnet), `CLAUDE.md`, `docs/STATUS.md`, `docs/PLAN.md`, `docs/REVIEW-LOG.md`, `docs/LATER.md`, a `## Owner decisions (closed)` section at the end of the spec, and `.claude/agents/<name>.md` for each agent the project needs (keep `release-checker` if the app will go to a store).
 3. Screenshots.
    - **Browser app:** (a) every screen opens from the URL (`?screen=<name>`; seeded game states and mockups too, mockups at `mockups/<name>.html`). (b) Record the start command and `BASE_URL` in CLAUDE.md (Claude desktop app: also `.claude/launch.json`). No dev server yet? Use `npx -y http-server -p 5173 -c-1`; the step that adds the real server updates (b). (c) `npm i -D playwright`, then `npx playwright install chromium`. (d) Copy `shots.mjs` from this skill folder to `scripts/shots.mjs`. It takes a base URL, a folder and screen names, and prints the PNG paths.
-   - **Not a browser app:** the owner drops phone shots into the folder. Run the visual loop only when the owner says so.
-4. Set STATUS **Next** to "design-critic loop on the spec" (or "PLAN step 1" if the spec was already reviewed). If the look matters, PLAN step 1 is "mockups": static `mockups/<name>.html` pages, a `step 1: plan` commit, a visual-critic loop, then build-order step 5 (update STATUS, `step 1: done` commit, `git tag -f reviewed`).
+   - **Not a browser app:** mockups are still web pages, so set up (b)–(d) for them. For the real app, the owner drops phone shots into the folder, and the visual loop runs only when the owner says so.
+4. Set STATUS **Next** to "design-critic loop on the spec" (or "PLAN step 1" if the spec was already reviewed). If the look matters, PLAN step 1 is "mockups": static `mockups/<name>.html` pages, a `step 1: plan` commit, a visual-critic loop, then **stop and show the owner the mockups**. Apply the owner's changes, add the chosen look to Owner decisions, then build-order step 5 (update STATUS, `step 1: done` commit, `git tag -f reviewed`).
 5. Git: `git init` if needed. Write `.gitignore` with the stack's standard ignores (deps, build output, `.env*` but `!.env.example`) plus `docs/shots/` and `.claude/settings.local.json`. Check `git status --short` before the first add. Then `git add -A`, `git commit -m "setup"` and `git tag -f reviewed` (setup tooling is exempt from review; on an existing codebase, tell the owner the tag here means "baseline": the old code was not reviewed, or run one code-reviewer pass on the riskiest files if the owner says yes). No remote? Remove "push" from the house rules.
+   Later, when an app scaffold needs an empty folder (for example `create-expo-app`), make it in a temp folder and merge it in: never replace `CLAUDE.md`, `docs/`, `.claude/`, `scripts/`, `mockups/`; merge `package.json` and `.gitignore`.
 6. A new `.claude/agents/` folder loads only at session start. Tell the owner to quit and open a new session (CLI: plain `claude`, not `--continue`; the old chat is waste now).
 
 ## When to use a subagent
 - **Reviewers always run as subagents.** They exist to be fresh and unbiased.
 - **Delegate build or research only when ALL three are true:** it makes a lot of output; you need only a short report; this session still has a long way to go. Else do it yourself. Up to ~3 files: never delegate.
+
+## Other skills (use them if installed)
+| Moment | Skill |
+|---|---|
+| No spec yet | `superpowers:brainstorming` |
+| Mockups and any UI step | `frontend-design` |
+| Expo or React Native project: setup, native UI, dev builds, App Store submit | `expo` |
+| The lead or the builder writes code | `superpowers:test-driven-development` (test first, then code) |
+| A test fails or a bug shows up | `superpowers:systematic-debugging` |
+| Never with this skill | `superpowers:subagent-driven-development`, `superpowers:executing-plans`, `superpowers:writing-plans`: they add per-task agents and their own plan, which this skill replaces |
+
+List the project's skills in CLAUDE.md (template line "Skills"), so every session and the builder use them.
 
 ## Resume table
 After `/clear`, run `git log -1 --format=%s`. The last commit name picks the row. STATUS adds the details (step, open items).
@@ -42,10 +57,11 @@ After `/clear`, run `git log -1 --format=%s`. The last commit name picks the row
 | `wip: <critic> round N` (loop done) | design-critic on the spec: tag `reviewed` if not on HEAD, then the first PLAN step. Design-critic on a step: build. Visual: code loop. Code: build-order step 5 |
 | `wip: <critic> round 3` | STATUS says awaiting owner: ask the owner again |
 | `wip: <critic> round 3 fix` | the round-4 check |
-| `step N: plan` | mockup step: visual-critic loop, then build-order step 5. Else: design-critic loop if the table below says so, then build |
+| `step N: plan` | mockup step: visual-critic loop, show the owner, then build-order step 5. Else: design-critic loop if the table below says so, then build |
 | `step N: build` | visual loop (big look change), then code loop |
 | `step N: done` | the next PLAN step, or push and stop if the batch is done |
 | `play: logged` | the next PLAN step, or stop |
+| `feedback: logged` | the next PLAN step |
 
 A loop is done when the log's last round for it has 0 MUST FIX, or round 3/4 went to the owner. Tag `reviewed` only at `step N: done` and at the end of the spec loop.
 
@@ -57,16 +73,18 @@ A loop is done when the log's last round for it has 0 MUST FIX, or round 3/4 wen
 | code-reviewer | Sonnet; `model: "opus"` on the call when the PLAN step says `Opus review: yes` (then for every round of that step) | end of each build step |
 | playtester | Sonnet | **only on the owner's yes, each run** (most expensive) |
 | builder | Sonnet | big build steps only |
+| release-checker | Sonnet | once before each App Store or store submit: privacy, permissions, data, purchases, store rules |
 
 One agent at a time, one job each. No parallel team. No per-task reviewers.
 
 **Order per build step N:**
 1. Write step N in `docs/PLAN.md`. `git add -A`, then `git commit -m "step N: plan"`. Design-critic loop on it, if the table says so.
-2. Build. Run the tests. Builder report lists unfinished work or ran out of turns? Finish it yourself if small, or re-run once with a narrower brief. Then `git add -A`, then `git commit -m "step N: build"`.
+2. Build, test first (see Other skills). Run the tests. Builder report lists unfinished work or ran out of turns? Finish it yourself if small, or re-run once with a narrower brief. Then `git add -A`, then `git commit -m "step N: build"`.
 3. Visual-critic loop, if there was a big look change.
 4. Code-reviewer loop. Round 1 reads the review diff (CLAUDE.md, "Review diff"). Skip the loop if its `--stat` form is empty.
 5. Update STATUS. `git add -A`, then `git commit -m "step N: done"`, then `git tag -f reviewed`.
 6. When the owner's batch is done (the steps the owner asked for this session), push if a remote exists: first time `git push -u origin HEAD`, later `git push`; then `git push -f origin reviewed`. The owner plays.
+7. **Owner feedback** after playing: turn it into PLAN steps (or LATER.md items), update STATUS, then `git add -A`, then `git commit -m "feedback: logged"`. Do this before any `/clear`, so no feedback lives only in the chat.
 
 ## The review loop and its bar (every critic except the playtester)
 Severities, defined in each agent file: **MUST FIX** names a concrete failure (crash, data loss, wrong behavior vs the spec, a broken user-visible feature, a contradiction, not buildable, the target violates an owner decision or house rule). **SHOULD FIX** is clearly better. **NIT** is taste. No concrete failure named → it is SHOULD FIX.
@@ -115,3 +133,4 @@ Short and plain. Decide routine design and polish yourself and say the call in o
 | "Loop until it's good" | Fresh harsh critics always find something. 0 MUST FIX or 3 rounds. |
 | "Keep going, this session has context" | Context lives in STATUS, the log and git. Commit, update, `/clear`. |
 | "Pass the agent a summary of the chat" | Name the file, or paste a small doc diff. The agent reads only that. |
+| "Let an architect agent write the spec" | A subagent cannot ask the owner anything. The lead writes the spec with the owner; agents only review it. |
