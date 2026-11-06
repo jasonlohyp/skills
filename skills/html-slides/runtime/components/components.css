@@ -1,0 +1,187 @@
+/* ===========================================================
+   html-slides components: components.css
+   9 slide-ready blocks: 6 layout components + 3 animated charts.
+   Scoped under .c-* classes. Needs a sized .fs-comp wrapper (see references/components.md).
+
+   THEME: every colour and font maps to a --fs-* token. Each token falls back to
+   the deck tokens (--accent, --ink, --ground, ...),
+   then to a plain default. Override on .fs-comp or :root to re-skin.
+   =========================================================== */
+.fs-comp {
+  --fs-accent:  var(--accent, #D9480F);
+  --fs-fg:      var(--ink, #FFFFFF);
+  --fs-bg:      var(--slide-ground, var(--ground, #000000));
+  --fs-muted:   var(--muted, #A0A0A0);
+  --fs-dim:     color-mix(in srgb, var(--fs-fg) 72%, transparent);
+  --fs-surface: color-mix(in srgb, var(--fs-fg) 7%, var(--fs-bg));
+  --fs-line:    color-mix(in srgb, var(--fs-fg) 18%, transparent);
+  --fs-sans:    var(--font-body, sans-serif);
+  --fs-serif:   var(--font-display, serif);
+  --fs-ease:    cubic-bezier(0.16, 1, 0.3, 1);
+
+  position: relative;
+  container-type: size;          /* components size their type from this box (cqw / cqh / cqmin) */
+  min-height: 0;
+  color: var(--fs-fg);
+  font-family: var(--fs-sans);
+}
+
+/* Before a scope plays, snap everything to its start state with no transition.
+   A scope is any element with data-fs-scope (bindSlides sets it on every slide). */
+[data-fs-scope]:not(.play) .fs-comp * { transition: none !important; animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .fs-comp * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+
+/* ###########################################################
+   COMPONENT 1: KPI COUNTER  (.c-kpi)   animation: count-up + fill bar
+   ########################################################### */
+.c-kpi { position: absolute; inset: 0; padding: 6cqmin; display: flex; flex-direction: column; justify-content: space-between; }
+.c-kpi .big { font-weight: 600; letter-spacing: -0.04em; line-height: .9; font-size: clamp(56px, 24cqw, 190px); }
+.c-kpi .big small { font-size: .45em; color: var(--fs-accent); margin-left: .05em; }
+.c-kpi .cap { font-size: clamp(24px, 3.4cqw, 30px); letter-spacing: .06em; color: var(--fs-muted); margin-top: 3cqmin; }
+.c-kpi .meter { height: 3px; background: var(--fs-line); margin: 4cqmin 0; position: relative; }
+.c-kpi .meter i { position: absolute; inset: 0; background: var(--fs-accent); transform-origin: left; transform: scaleX(0); }
+.play .c-kpi .meter i { transform: scaleX(var(--v)); transition: transform 1.6s var(--fs-ease) .1s; }
+.c-kpi .row { display: grid; grid-template-columns: 1fr 1fr; gap: 4cqmin; border-top: 1px solid var(--fs-line); padding-top: 4cqmin; }
+.c-kpi .row strong { display: block; font-size: clamp(24px, 8cqw, 52px); font-weight: 500; letter-spacing: -.02em; }
+.c-kpi .row span { font-size: clamp(24px, 2.8cqw, 30px); color: var(--fs-muted); letter-spacing: .05em; }
+
+
+/* ###########################################################
+   COMPONENT 2: STATEMENT  (.c-statement)   animation: word mask-reveal + underline draw
+   ########################################################### */
+.c-statement { position: absolute; inset: 0; padding: 6cqmin; display: flex; flex-direction: column; justify-content: center; }
+.c-statement .eyebrow { font-size: clamp(24px, 2.4cqw, 30px); letter-spacing: .08em; color: var(--fs-muted); margin-bottom: 3cqmin; }
+.c-statement h2 { font-family: var(--fs-serif); font-weight: 400; font-size: clamp(34px, 8.6cqw, 96px); line-height: 1.02; letter-spacing: -.01em; }
+.c-statement .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .12em; margin-right: .22em; }
+.c-statement .w span { display: inline-block; transform: translateY(110%); }
+.play .c-statement .w span { transform: none; transition: transform 1s var(--fs-ease); transition-delay: calc(var(--i) * 90ms + 150ms); }
+.c-statement .em { color: var(--fs-accent); }
+.c-statement .ul { height: 2px; background: var(--fs-fg); margin-top: 4cqmin; width: 0; }
+.play .c-statement .ul { width: 28%; transition: width 1.2s var(--fs-ease) 1.2s; }
+
+
+/* ###########################################################
+   COMPONENT 3: PROCESS FLOW  (.c-flow)   animation: line draw + travelling packet + stagger
+   ########################################################### */
+.c-flow { position: absolute; inset: 0; padding: 4cqh 4cqw; display: flex; align-items: center; }
+.c-flow .track { position: relative; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3cqw; }
+.c-flow .node { position: relative; padding-top: 3.2cqh; }
+.c-flow .node .n { font-size: clamp(24px, 1.4cqw, 30px); color: var(--fs-accent); font-weight: 500; letter-spacing: .06em; }
+.c-flow .node h3 { font-family: var(--fs-serif); font-size: clamp(26px, 4.2cqw, 56px); font-weight: 600; letter-spacing: -.02em; margin: .1em 0 .2em; }
+.c-flow .node p { font-size: clamp(24px, 1.6cqw, 30px); color: var(--fs-muted); max-width: 26ch; }
+.c-flow .node { opacity: 0; transform: translateY(24px); }
+.play .c-flow .node { opacity: 1; transform: none; transition: opacity .9s var(--fs-ease), transform .9s var(--fs-ease); transition-delay: calc(var(--i) * 350ms + 200ms); }
+.c-flow .rail { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--fs-line); }
+.c-flow .rail i { position: absolute; inset: 0; background: var(--fs-fg); transform-origin: left; transform: scaleX(0); }
+.play .c-flow .rail i { transform: scaleX(1); transition: transform 1.8s var(--fs-ease) .1s; }
+.c-flow .dot { position: absolute; top: -5px; left: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--fs-accent); opacity: 0; }
+.play .c-flow .dot { animation: packet 3.6s linear 1.6s infinite; }
+@keyframes packet { 0% { left: 0; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { left: calc(100% - 12px); opacity: 0; } }
+.c-flow .node::before { content: ""; position: absolute; top: -5px; left: 0; width: 12px; height: 12px; background: var(--fs-fg); border-radius: 50%; transform: scale(0); }
+.play .c-flow .node::before { transform: scale(1); transition: transform .5s var(--fs-ease); transition-delay: calc(var(--i) * 350ms + 300ms); }
+
+
+/* ###########################################################
+   COMPONENT 4: ROADMAP TIMELINE  (.c-time)   animation: vertical line draw + slide-in + pulse
+   ########################################################### */
+.c-time { position: absolute; inset: 0; padding: 5cqmin 6cqmin; display: flex; flex-direction: column; justify-content: center; }
+.c-time ol { list-style: none; position: relative; padding-left: 9cqw; }
+.c-time ol::before { content: ""; position: absolute; left: 3cqw; top: .4em; bottom: .4em; width: 2px; background: var(--fs-line); }
+.c-time ol::after { content: ""; position: absolute; left: 3cqw; top: .4em; bottom: .4em; width: 2px; background: var(--fs-fg); transform-origin: top; transform: scaleY(0); }
+.play .c-time ol::after { transform: scaleY(1); transition: transform 2s var(--fs-ease) .1s; }
+.c-time li { position: relative; padding: 2.4cqh 0; opacity: 0; transform: translateX(-24px); }
+.play .c-time li { opacity: 1; transform: none; transition: opacity .8s var(--fs-ease), transform .8s var(--fs-ease); transition-delay: calc(var(--i) * 380ms + 250ms); }
+.c-time li::before { content: ""; position: absolute; left: -7cqw; top: calc(2.4cqh + .45em); width: 11px; height: 11px; border-radius: 50%; background: var(--fs-bg); border: 2px solid var(--fs-fg); }
+.c-time li.now::before { background: var(--fs-accent); border-color: var(--fs-accent); }
+.play .c-time li.now::before { animation: pulse 1.8s ease-out 1.6s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(235,0,16,.7); } 100% { box-shadow: 0 0 0 14px rgba(235,0,16,0); } }
+.c-time small { font-size: clamp(24px, 2.2cqw, 30px); letter-spacing: .06em; color: var(--fs-muted); }
+.c-time h4 { font-family: var(--fs-serif); font-size: clamp(24px, 4.6cqw, 34px); font-weight: 500; letter-spacing: -.01em; }
+.c-time p { font-size: clamp(24px, 2.6cqw, 30px); color: var(--fs-muted); }
+
+
+/* ###########################################################
+   COMPONENT 5: BEFORE / AFTER SLIDER  (.c-cmp)   animation: auto-sweep, then drag to compare
+   ########################################################### */
+.c-cmp { position: absolute; inset: 0; --pos: 100%; cursor: ew-resize; touch-action: none; user-select: none; }
+.c-cmp .layer { position: absolute; inset: 0; padding: 6cqmin; display: flex; flex-direction: column; justify-content: center; }
+.c-cmp .before { background: var(--fs-surface); }
+.c-cmp .after { background: var(--fs-fg); color: var(--fs-bg); clip-path: inset(0 0 0 var(--pos)); }
+.c-cmp .tag { font-size: clamp(24px, 2.4cqw, 30px); letter-spacing: .08em; opacity: .7; }
+.c-cmp .val { font-weight: 600; letter-spacing: -.04em; line-height: .95; font-size: clamp(44px, 15cqw, 120px); margin: 2cqmin 0; }
+.c-cmp .after .val { color: var(--fs-accent); }
+.c-cmp .txt { font-size: clamp(24px, 3cqw, 30px); max-width: 24ch; }
+.c-cmp .before .txt { color: var(--fs-muted); }
+.c-cmp .after { align-items: flex-end; text-align: right; }
+.c-cmp .handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; background: var(--fs-accent); transform: translateX(-1px); }
+.c-cmp .handle::after { content: "↔"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: var(--fs-accent); color: var(--fs-fg); display: grid; place-items: center; font-size: 24px; border-radius: 50%; }
+.c-cmp.sweep { transition: --pos 0s; }
+
+
+/* ###########################################################
+   COMPONENT 6: LIVE ALERT FEED  (.c-feed)   animation: continuous vertical scroll + fade edges
+   ########################################################### */
+.c-feed { position: absolute; inset: 0; overflow: hidden; padding: 0 6cqmin; -webkit-mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent); }
+.c-feed ul { list-style: none; }
+.play .c-feed ul { animation: feedscroll 18s linear infinite; }
+@keyframes feedscroll { to { transform: translateY(-50%); } }
+.c-feed li { display: grid; grid-template-columns: 4.6em 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--fs-line); font-size: clamp(24px, 2.6cqw, 30px); }
+.c-feed time { color: var(--fs-dim); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+.c-feed .sev { font-size: .72em; letter-spacing: .06em; padding: 3px 9px; border: 1px solid var(--fs-muted); color: var(--fs-muted); }
+.c-feed .sev.hi { background: var(--fs-accent); border-color: var(--fs-accent); color: var(--fs-fg); }
+.c-feed .sev.md { border-color: var(--fs-fg); color: var(--fs-fg); }
+
+
+/* ###########################################################
+   CHARTS: shared  (.c-chart)
+   ########################################################### */
+.c-chart { position: absolute; inset: 0; padding: 4cqmin 5cqmin 3cqmin; display: flex; flex-direction: column; gap: 2cqmin; }
+.c-chart header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.c-chart header h3 { font-family: var(--fs-serif); font-size: clamp(24px, 3cqw, 24px); font-weight: 500; letter-spacing: .04em; }
+.c-chart header span { font-size: 24px; letter-spacing: .06em; color: var(--fs-dim); }
+.c-chart svg { flex: 1 1 0; min-height: 0; width: 100%; overflow: visible; display: block; }
+.c-chart .axis text { fill: var(--fs-muted); font-size: 24px; font-family: var(--fs-sans); }
+.c-chart .grid line { stroke: var(--fs-line); stroke-width: 1; }
+.legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 24px; color: var(--fs-muted); letter-spacing: .05em; }
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: -1px; }
+
+
+/* ###########################################################
+   COMPONENT 7: LINE CHART  (.c-line)   animation: stroke draw + area fade + dot pop + hover crosshair
+   ########################################################### */
+.c-line .ln { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.play .c-line .ln { stroke-dashoffset: 0; transition: stroke-dashoffset 2s var(--fs-ease); }
+.play .c-line .ln.b { transition-delay: .35s; }
+.c-line .area { opacity: 0; }
+.play .c-line .area { opacity: .12; transition: opacity 1.2s ease 1.2s; }
+.c-line .pt { transform: scale(0); transform-box: fill-box; transform-origin: center; }
+.play .c-line .pt { transform: scale(1); transition: transform .4s var(--fs-ease); transition-delay: calc(var(--i) * 120ms + 600ms); }
+.c-line .cross { stroke: var(--fs-muted); stroke-dasharray: 3 4; opacity: 0; }
+.c-line .tip { position: absolute; pointer-events: none; background: var(--fs-fg); color: var(--fs-bg); font-size: 24px; padding: 6px 10px; opacity: 0; transform: translate(-50%, -120%); white-space: nowrap; }
+.c-line .tip b { color: var(--fs-accent); }
+
+
+/* ###########################################################
+   COMPONENT 8: BAR CHART  (.c-bars)   animation: bars grow from baseline, staggered, value labels fade in
+   ########################################################### */
+.c-bars .rect { transform: scaleY(0); transform-box: fill-box; transform-origin: bottom; }
+.play .c-bars .rect { transform: scaleY(1); transition: transform 1s var(--fs-ease); transition-delay: calc(var(--i) * 110ms + 150ms); }
+.c-bars .val { opacity: 0; fill: var(--fs-fg); font-size: 24px; text-anchor: middle; font-weight: 500; }
+.play .c-bars .val { opacity: 1; transition: opacity .6s ease; transition-delay: calc(var(--i) * 110ms + 800ms); }
+.c-bars .rect:hover { fill: var(--fs-accent); }
+
+
+/* ###########################################################
+   COMPONENT 9: PIE CHART  (.c-pie)   animation: wedges sweep in one after another, centre count-up
+   ########################################################### */
+.c-pie .wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; gap: 5cqw; }
+.c-pie svg { flex: none; width: min(46cqw, 52cqh); height: auto; aspect-ratio: 1; transform: rotate(-90deg); }
+.c-pie .seg { fill: none; stroke-width: 50; stroke-dasharray: 0 100; }
+.play .c-pie .seg { stroke-dasharray: var(--len) 100; transition: stroke-dasharray .9s var(--fs-ease); transition-delay: calc(var(--i) * 450ms + 150ms); }
+.c-pie ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.c-pie li { display: grid; grid-template-columns: 12px 1fr auto; gap: 12px; align-items: center; font-size: clamp(24px, 2.4cqw, 30px); letter-spacing: .06em; opacity: 0; transform: translateX(14px); }
+.play .c-pie li { opacity: 1; transform: none; transition: all .7s var(--fs-ease); transition-delay: calc(var(--i) * 450ms + 500ms); }
+.c-pie li i { width: 12px; height: 12px; display: block; }
+.c-pie li b { font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .c-pie .wrap { flex-direction: column; } }

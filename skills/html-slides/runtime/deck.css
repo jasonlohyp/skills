@@ -1,0 +1,56 @@
+/* html-slides runtime styles. The deck's own design goes in the deck-design style block, not here. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--ground); }
+body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing: antialiased; }
+#ground, #wipe, #dots { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#ground { background: var(--ground); transition: background-color .8s ease; }
+#wipe { visibility: hidden; }
+
+/* Fixed 1920x1080 stage, scaled as a whole. The ground fills the window, so there is no frame. */
+#stage { position: fixed; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+#world { position: absolute; inset: 0; }
+.slide { position: absolute; inset: 0; width: 1920px; height: 1080px; padding: 110px 130px; color: var(--ink); visibility: hidden; pointer-events: none; overflow: hidden; }
+.slide.visible, .slide.leaving { visibility: visible; }
+.slide.visible { pointer-events: auto; }
+.slide .notes { display: none; }
+[hidden] { display: none !important; }
+
+/* The world flow: slides sit in 3D space and the camera flies between them. */
+html[data-flow="world"] #stage { perspective: 1400px; perspective-origin: 50% 50%; }
+html[data-flow="world"] #world { transform-style: preserve-3d; }
+html[data-flow="world"] .slide { opacity: 0; transition: opacity .7s ease, filter .7s ease; }
+html[data-flow="world"] .slide.visible { opacity: 1; }
+html[data-flow="world"] .slide.ghost { visibility: visible; opacity: .16; filter: blur(5px); }
+
+/* Words rise out of a mask. */
+.m { display: inline-block; overflow: hidden; vertical-align: top; padding: .12em .04em .26em; margin: -.12em -.04em -.26em; }
+.i { display: inline-block; will-change: transform; }
+
+/* Section heading: small, one fixed place. */
+#sec { position: absolute; left: 130px; top: 58px; font-size: 24px; letter-spacing: .02em; color: var(--muted); z-index: 5; }
+#sec:empty { display: none; }
+
+/* Slide position marks. */
+.deck-nav { position: fixed; z-index: 20; transition: opacity .4s; }
+.deck-nav.dots { right: 18px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; }
+.deck-nav.dots button { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 50%; background: var(--muted); opacity: .4; cursor: pointer; transition: opacity .3s, transform .3s; }
+.deck-nav.dots button.on { opacity: 1; background: var(--accent); transform: scale(1.3); }
+.deck-nav.bar { left: 0; bottom: 0; height: 3px; width: 100%; }
+.deck-nav.bar i { display: block; height: 100%; background: var(--accent); transition: width .5s ease; }
+body.idle { cursor: none; }
+body.idle .deck-nav.dots { opacity: 0; }
+
+/* Edit mode. */
+body.editing { cursor: auto; }
+body.editing .slide [contenteditable] { outline: 1px dashed color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 5px; cursor: text; }
+body.editing .slide [contenteditable]:focus { outline: 2px solid var(--accent); }
+body.editing #sec { outline: 1px dashed var(--muted); outline-offset: 5px; }
+body.editing .slide img { outline: 1px dashed var(--accent); outline-offset: 3px; cursor: pointer; }
+body.editing [data-fs="line"], body.editing [data-fs="bars"], body.editing [data-fs="pie"], body.editing [data-fs="feed"], body.editing [data-fs="statement"], body.editing [data-fs="cmp"] { cursor: pointer; }
+.deck-ui { position: fixed; z-index: 40; font: 15px/1.45 system-ui, sans-serif; color: #f5f5f5; background: #161616; border: 1px solid #3a3a3a; }
+#deck-bar { left: 50%; bottom: 14px; transform: translateX(-50%); padding: 8px 14px; border-radius: 8px; white-space: nowrap; max-width: 96vw; overflow: hidden; text-overflow: ellipsis; }
+#deck-hidden { left: 14px; top: 14px; padding: 6px 12px; border-radius: 8px; background: #6b1d1d; }
+#deck-notes { left: 50%; bottom: 58px; transform: translateX(-50%); width: min(980px, 92vw); max-height: 34vh; overflow: auto; padding: 14px 18px; border-radius: 8px; font-size: 18px; white-space: pre-wrap; }
+#deck-data { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(760px, 92vw); padding: 16px; border-radius: 10px; }
+#deck-data textarea { width: 100%; height: 240px; font: 14px/1.4 ui-monospace, monospace; background: #0c0c0c; color: #f5f5f5; border: 1px solid #3a3a3a; padding: 10px; }
+#deck-data button { margin: 10px 8px 0 0; padding: 7px 14px; font: inherit; cursor: pointer; }
