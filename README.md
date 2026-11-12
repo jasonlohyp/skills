@@ -11,6 +11,7 @@ A skill is a set of instructions that Claude loads only when a task needs it.
 | Skill | What it does |
 |---|---|
 | [lean-agent-build](skills/lean-agent-build/) | Builds an app or game over many sessions with fresh AI reviewers and a review loop with a hard stop, on a tight weekly usage limit. |
+| [claude-audit](skills/claude-audit/) | Audits your Claude setup: instruction files, memory, worktrees, branches and chats. Writes one report and changes nothing until you say yes. |
 | [html-slides](skills/html-slides/) | Makes a slide deck as one HTML file, from notes, a PowerPoint or a topic. It asks you questions first, moves well, and you can edit it in the browser. |
 
 ## Hooks
