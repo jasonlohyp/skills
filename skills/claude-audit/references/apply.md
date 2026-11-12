@@ -2,13 +2,24 @@
 
 Before each group: read the project CLAUDE.md and memory for freeze and public-repo rules. A frozen file stays as it is unless the owner opens the freeze. In a public repo, keep real names, emails and local paths out of every change and commit, and follow the commit identity rule in the user CLAUDE.md.
 
-Prefer reversible. Do the groups in this order: Chats, Disk and git, Memory, Instructions. Chats go first because a worktree can only go after its chat is archived.
+Prefer reversible. Do the groups in this order: Chats, Disk and git, Memory, Instructions, Artifacts. Chats go first because a worktree can only go after its chat is archived.
 
 ## Chats
 
 - `mcp__ccd_session_mgmt__archive_session` for each approved idle chat. Never `delete_session`.
-- Before each call, check the chat again with `list_sessions`. Skip it if `isRunning` is now true.
-- If the app refuses an archive, report it. Do not retry in a loop.
+- Before each call, check the chat again with `mcp__ccd_session_mgmt__get_session`. Skip it if `isRunning` is now true.
+- If auto mode says a hook changed the input, send the call once more with exactly the input it printed. If it is refused again, report it. Do not retry in a loop.
+
+## Artifacts
+
+Delete is permanent, and the link stops working for everyone. So:
+1. Delete only the artifacts whose numbers the owner gave in reply to "Artifacts?".
+2. Save a copy of each first, to `<home>/.claude/artifact-backups/<YYYY-MM-DD>/<title>/` (write the full home path; `~` may not expand):
+   - `Artifact { action: "list", scope: "files", url: <url> }` to get its published files.
+   - `Artifact { action: "read", url: <url>, paths: [<all of them>], out_dir: <that folder> }`.
+   - If a read fails, do not delete that artifact. Report it as kept.
+3. Then `Artifact { action: "delete", url: <url> }`. The app asks the owner to confirm each delete.
+4. Report each URL as deleted or kept, with the path of its copy. Add one line: "Delete the backup folder when you no longer need it."
 
 ## Disk and git
 

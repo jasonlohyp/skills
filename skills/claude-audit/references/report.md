@@ -1,13 +1,13 @@
 # Step 4: Report
 
-File: `audits/<YYYY-MM-DD>-<scope>.md` in the repo where this chat runs. Create `audits/` if needed. Plain short English: short words, short sentences, active voice.
+File: `claude-audit-<YYYY-MM-DD>-<scope>.md` in the temp folder named in SKILL.md Step 4 (scratchpad, else `$TEMP` or `/tmp`). Never in a project folder. Plain short English: short words, short sentences, active voice.
 
 ## Shape (in this order)
 
 ```markdown
 # Claude audit: <scope>, <YYYY-MM-DD>
 
-Mode: <full | report-only>. Doctor: <pasted | skipped>. Claude Code <version>.
+Mode: <full | report-only>. Claude Code <version>.
 
 ## Numbers
 | What | Now | Target |
@@ -22,6 +22,7 @@ Mode: <full | report-only>. Doctor: <pasted | skipped>. Claude Code <version>.
 | Caches and logs (MB) | n | — |
 | .git size / gc gain | n / yes-no | — |
 | Open chats (idle / keep) | n / n | — |
+| Artifacts (all / old / unnamed) | n / n / n | — |
 
 ## Top 5
 1. <one line each: the finding with the most impact first>
@@ -42,6 +43,9 @@ Question asked: "Review your notes. List anything outdated, duplicated or confli
 ## Chats
 <idle chats per project: title, last date, worktree, proposed action>
 
+## Artifacts
+<one numbered table of candidates: #, title, URL, last updated, labels (old / unnamed / project active), proposed action. Then one line: "<n> other artifacts: keep." Note that the list has no last-opened date, so "old" is a guess.>
+
 ## Fixes by group
 ### Instructions
 - [ ] <fix> — <risk>
@@ -51,6 +55,8 @@ Question asked: "Review your notes. List anything outdated, duplicated or confli
 - [ ] ...
 ### Chats
 - [ ] ...
+### Artifacts
+- [ ] Delete <title> (<URL>) — destructive (a copy is saved first)
 ```
 
 ## Each finding
@@ -69,4 +75,4 @@ Example:
 - Put numbers first. No long prose.
 - Name exact paths and commands.
 - Do not repeat the same finding in two sections. Point to it.
-- The report holds local paths. Never commit it.
+- The report holds local paths and memory notes. Keep it in the temp folder. Never commit or publish it unless the owner asks.

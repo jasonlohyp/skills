@@ -95,6 +95,27 @@ The result can be too large for one read and gets saved to a file. Then filter t
 
 Group idle chats by project, oldest first. Note which idle chats sit in a worktree that is otherwise unused: archive the chat first, then the worktree can go.
 
+## Artifacts
+
+Artifacts are pages on claude.ai. They belong to the account, not to a project. Do this check in the main chat, not in a subagent.
+
+```
+Artifact { action: "list", scope: "mine", limit: 200 }
+```
+
+If the result says more exist, list again with `page_token`. Each row has a title, URL and last-updated date. The list is sorted by last opened OR updated, newest first. With a folder argument, keep only artifacts whose title names the project.
+
+The list gives no "last opened" date. So the verdicts below are a best guess, and the owner decides. Let `<cutoff>` be today minus 30 days. For each artifact, give every label that fits:
+- **Opened recently:** it sits above an artifact with a strictly newer update date. Keep.
+- **Old:** updated on or before `<cutoff>` and not opened recently.
+- **Unnamed:** title "Untitled", or a title of only generic words ("Design", "Design System", "Mockup", "Notes"). Flag it, whatever its date.
+- **Project active:** the title names a project that had a chat in the last 14 days (from the chat list). It may still be a reference. Note it next to "old".
+- **Shared:** only `scope: "mine"` artifacts are candidates. Never touch a shared one.
+
+Candidates are the artifacts labelled old or unnamed. Do not read their content in this step (it costs context). The title and date are enough to ask.
+
+Record: title, URL, last-updated date, labels (for example "old, unnamed").
+
 ## Output
 
-Return, per project: a worktree table, merged and unmerged branch lists, stashes, caches, logs, .git size and gc verdict, idle chat list. Use tables. Write sizes as shown by `du -h`. Sum worktree sizes in GB.
+Return, per project: a worktree table, merged and unmerged branch lists, stashes, caches, logs, .git size and gc verdict, idle chat list. Then one artifact table for the account. Use tables. Write sizes as shown by `du -h`. Sum worktree sizes in GB.
