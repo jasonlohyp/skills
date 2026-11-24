@@ -6,7 +6,7 @@ Each item has its own folder with a README that explains what it does and how to
 
 ## Onboard
 
-[onboard](onboard/) sets up Claude Code with a short, plain work style when you paste a prompt. It works for you and for colleagues.
+[onboard](onboard/) sets up Claude Code with a short, plain work style in 3 steps. You paste prompts into Claude Code. It works for you and for colleagues.
 
 ## Skills
 

@@ -1,4 +1,4 @@
-# Work rules (from jasonlohyp/skills onboard)
+# Work rules
 
 ## Reporting
 - One message per turn, at the end. Write no text between tool calls.
@@ -20,7 +20,7 @@
 - Before you propose a tool or a paid service, check its price, its exact free limit (official page), its commercial license and user reviews. Name a free option too.
 
 ## Stop
-- "Stop" or "I want to sleep" means: stop all work, save it, and start nothing new.
+- "Stop" means: stop all work, save it, and start nothing new.
 
 ## My words
 | I say | Do this |

@@ -1,8 +1,6 @@
 # onboard
 
-Set up Claude Code with a short, plain work style. You paste one prompt into Claude Code. Claude does the work. There is no installer script.
-
-Every step skips and reports instead of failing. This helps on a company laptop that blocks downloads, hooks or plugins.
+Set up Claude Code with a short, plain work style in 3 steps. For each step, you paste a prompt into Claude Code, and Claude does the work.
 
 ## What you get
 
@@ -10,17 +8,13 @@ Every step skips and reports instead of failing. This helps on a company laptop 
 |---|---|---|
 | ELI5 style | Claude answers in short, plain English. | [ELI5.md](ELI5.md) |
 | Work rules | Claude reports once per turn, decides small things itself and checks tools before it suggests them. | [WORK-RULES.md](WORK-RULES.md) |
-| quiet-noisy hook | Cuts long install, build and test output to errors and the summary. | [hooks/quiet-noisy](../hooks/quiet-noisy/) |
+| quiet-noisy hook | Cuts long install, build and test output to errors and the summary. This saves tokens. | [hooks/quiet-noisy](../hooks/quiet-noisy/) |
 
-## Quick setup
+## Step 1: Style and rules
 
-Everyone runs this prompt first. It needs no internet. It sets up the style and the work rules only. Then run the Full prompt if you want the hook.
-
-Paste it into Claude Code:
+This step needs no internet. Paste this into Claude Code:
 
 ````text
-(Colleagues: if you want normal answers instead of short plain ones, delete step 1 before you send this.)
-
 Set up my work style on this computer. Keep everything that already exists. Do not ask me anything. Report at the end. If a step is blocked or fails, skip it and report it. If `settings.json` is not valid JSON, do not change it; skip and report.
 
 Step 1, style. Write the text between STYLE START and STYLE END to `~/.claude/output-styles/ELI5.md`. Create the folder if needed. In `~/.claude/settings.json`, set `"outputStyle": "ELI5"`. Create the file if it is missing. Keep all other keys. Keep the file valid JSON.
@@ -44,7 +38,7 @@ Keep paths and commands exact. I have no brain cells left for the rest.
 === STYLE END ===
 
 === RULES START ===
-# Work rules (from jasonlohyp/skills onboard)
+# Work rules
 
 ## Reporting
 - One message per turn, at the end. Write no text between tool calls.
@@ -66,7 +60,7 @@ Keep paths and commands exact. I have no brain cells left for the rest.
 - Before you propose a tool or a paid service, check its price, its exact free limit (official page), its commercial license and user reviews. Name a free option too.
 
 ## Stop
-- "Stop" or "I want to sleep" means: stop all work, save it, and start nothing new.
+- "Stop" means: stop all work, save it, and start nothing new.
 
 ## My words
 | I say | Do this |
@@ -77,14 +71,12 @@ Keep paths and commands exact. I have no brain cells left for the rest.
 === RULES END ===
 ````
 
-## Full setup
+## Step 2: The hook
 
-Use this prompt when you have internet. It adds the hook only. It does not set the style or the rules, so run the quick prompt too.
-
-Paste it into Claude Code:
+This step needs internet and [Node.js](https://nodejs.org). Paste this into Claude Code:
 
 ````text
-Install my Claude Code tools. Keep everything that already exists. If a step fails or is blocked (download blocked, company policy, missing program), skip it, go on, and report it at the end. Do not ask me anything.
+Install the quiet-noisy hook. Keep everything that already exists. If a step fails or is blocked (download blocked, company policy, missing program), skip it, go on, and report it at the end. Do not ask me anything.
 
 `~` means my home folder. In commands, use the full path (for example `$HOME/...`), because some shells do not expand `~`.
 
@@ -94,49 +86,37 @@ Install my Claude Code tools. Keep everything that already exists. If a step fai
 4. Report. Show a table with the columns Item, Done or skipped, Why. Then tell me to restart Claude Code.
 ````
 
-## Skills to install yourself
+## Step 3: Outside skills
 
-The work rules use 3 outside skills. Install them yourself from their own pages:
+The work rules use 3 outside skills. Install them yourself:
 
 | Skill | Gives you | Where |
 |---|---|---|
-| superpowers | "brainstorm" and "bug" | Anthropic's official plugin store: `/plugin install superpowers@claude-plugins-official` (first `/plugin marketplace add anthropics/claude-plugins-official` if it is not found) |
+| superpowers | "brainstorm" and "bug" | In Claude Code: `/plugin install superpowers@claude-plugins-official` (first `/plugin marketplace add anthropics/claude-plugins-official` if it is not found) |
 | grilling | "grill me" | https://github.com/mattpocock/skills |
 | humanizer | text that does not sound AI-made | https://github.com/blader/humanizer |
-
-## Claude chat app
-
-The chat app (claude.ai or the Chat tab in the desktop app) cannot run prompts that write files. Set the style by hand instead.
-
-1. Open the style menu in a chat. Choose "Create & edit styles".
-2. Create a custom style.
-3. Paste the body of [ELI5.md](ELI5.md). The body is the text after the frontmatter (the part after the second `---` line).
-
-If you do not see a style menu, paste the same text into Settings > Profile > personal preferences.
 
 ## Check it works
 
 1. Restart Claude Code.
 2. Ask: "What is your output style?" The answer must say ELI5.
-3. Ask Claude to run a command with long output, such as `npm install --verbose express` in a test folder (only if you ran the Full prompt and have Node). The output starts with `[quiet-hook]`.
+3. Ask Claude to run `npm install --verbose express` in a test folder. The output starts with `[quiet-hook]`.
 
-## Update
+## Claude chat app (optional)
 
-Run the Quick and Full prompts again. The markers stop a second copy of the rules. The hook check stops a second hook entry.
+The ELI5 style above works in Claude Code only. The chat app (claude.ai, or the Chat tab in the desktop app) has its own styles. To use ELI5 there too:
+
+1. In a chat, open the style menu and choose "Create & edit styles".
+2. Create a custom style, and paste the text of [ELI5.md](ELI5.md) after the second `---` line.
 
 ## Uninstall
 
-1. Delete `~/.claude/output-styles/ELI5.md`.
-2. Remove `outputStyle` from `~/.claude/settings.json`.
-3. Delete the marked block from `~/.claude/CLAUDE.md`. It runs from `<!-- onboard:work-rules start -->` to `<!-- onboard:work-rules end -->`.
-4. Remove the quiet-noisy hook entry from `~/.claude/settings.json`. Delete `~/.claude/hooks/quiet-noisy.js`.
-5. Restart Claude Code.
-
-Skills you installed yourself: remove them the way you installed them.
+1. Delete `~/.claude/output-styles/ELI5.md`, and remove `outputStyle` from `~/.claude/settings.json`.
+2. In `~/.claude/CLAUDE.md`, delete the block from `<!-- onboard:work-rules start -->` to `<!-- onboard:work-rules end -->`.
+3. Remove the quiet-noisy entry from `~/.claude/settings.json`, and delete `~/.claude/hooks/quiet-noisy.js`.
+4. Restart Claude Code.
 
 ## Notes
 
 - It works on Windows, macOS and Linux.
-- The hook needs Node.js.
-- A company admin can block hooks or downloads. The prompt then reports it.
 - For hook details, see [quiet-noisy](../hooks/quiet-noisy/).
