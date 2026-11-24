@@ -42,7 +42,7 @@ The Claude Code docs have a small example hook on the [Manage costs](https://cod
 
 - [Claude Code](https://code.claude.com)
 - [Node.js](https://nodejs.org)
-- macOS, Linux or Windows. On Windows, the hook works in Claude's PowerShell tool and in its Bash tool (Git Bash).
+- macOS, Linux or Windows. On macOS, it works with the default `zsh` shell and with `bash`. On Windows, it works in Claude's PowerShell tool and in its Bash tool (Git Bash).
 
 ## Install
 

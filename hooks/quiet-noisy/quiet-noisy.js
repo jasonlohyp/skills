@@ -44,8 +44,11 @@ const IMPORTANT = new RegExp([
   /\bERR!|\w+Error\b|✗|✖|×/.source,
 ].join('|'), 'i');
 
+// POSIX only (no PIPESTATUS), so it works in bash and in zsh, the macOS
+// default shell. Output is collected first, so the real exit code is kept.
 function wrapBash(cmd) {
-  return `{ ${cmd}\n} 2>&1 | node "${SELF}" --filter; exit \${PIPESTATUS[0]}`;
+  return `__qOut=$( { ${cmd}\n} 2>&1 ); __qCode=$?; ` +
+    `printf '%s\\n' "$__qOut" | node "${SELF}" --filter; exit $__qCode`;
 }
 
 // Works in Windows PowerShell 5.1 and PowerShell 7. Output is collected first,
