@@ -4,6 +4,10 @@ Skills, hooks and tools for [Claude Code](https://code.claude.com).
 
 Each item has its own folder with a README that explains what it does and how to install it.
 
+## Onboard
+
+[onboard](onboard/) sets up Claude Code with this work style when you paste a prompt. It works for you and for colleagues.
+
 ## Skills
 
 A skill is a set of instructions that Claude loads only when a task needs it.
