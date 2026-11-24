@@ -11,9 +11,7 @@ Every step skips and reports instead of failing. This helps on a company laptop 
 | ELI5 style | Claude answers in short, plain English. | [ELI5.md](ELI5.md) |
 | Work rules | Claude reports once per turn, decides small things itself and checks tools before it suggests them. | [WORK-RULES.md](WORK-RULES.md) |
 | quiet-noisy hook | Cuts long install, build and test output to errors and the summary. | [hooks/quiet-noisy](../hooks/quiet-noisy/) |
-| grilling skill | Claude questions your plan until it holds up. | [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling) |
 | humanizer skill | Rewrites AI-sounding text. | [blader/humanizer](https://github.com/blader/humanizer) |
-| superpowers plugin | A set of work-flow skills, for example brainstorming and debugging. | `superpowers@claude-plugins-official` |
 
 ## Quick setup
 
@@ -82,7 +80,7 @@ Keep paths and commands exact. I have no brain cells left for the rest.
 
 ## Full setup
 
-Use this prompt when you have internet. It adds the hook and the skills. It does not set the style or the rules, so run the quick prompt too.
+Use this prompt when you have internet. It adds the hook and the humanizer skill. It does not set the style or the rules, so run the quick prompt too.
 
 Paste it into Claude Code:
 
@@ -93,12 +91,19 @@ Install my Claude Code tools. Keep everything that already exists. If a step fai
 
 1. Run `node --version`. If Node is missing, skip step 2 and say so.
 2. Hook. Download `https://raw.githubusercontent.com/jasonlohyp/skills/main/hooks/quiet-noisy/quiet-noisy.js` to `~/.claude/hooks/quiet-noisy.js`. In `~/.claude/settings.json`, under `hooks.PreToolUse`, add this entry only if no existing entry already mentions `quiet-noisy.js`: `{"matcher": "Bash|PowerShell", "hooks": [{"type": "command", "command": "node \"$HOME/.claude/hooks/quiet-noisy.js\"", "timeout": 10}]}`. Keep all other keys and entries. Then test it: pipe `{"tool_name":"Bash","tool_input":{"command":"npm test"}}` into `node "$HOME/.claude/hooks/quiet-noisy.js"`. The output must contain `--filter`.
-3. grilling. Download `https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grilling/SKILL.md` to `~/.claude/skills/grilling/SKILL.md`. Replace an old copy.
-4. humanizer. Put `https://github.com/blader/humanizer` into `~/.claude/skills/humanizer/`. Use `git clone --depth 1`, or download the repo zip if git is missing. Replace an old copy. Delete its `.git` folder. The folder must contain `SKILL.md`.
-5. superpowers. If the `claude` command exists: if the marketplace `claude-plugins-official` is not known (check with `claude plugin marketplace list`), run `claude plugin marketplace add anthropics/claude-plugins-official`. Then run `claude plugin install superpowers@claude-plugins-official`. If the `claude` command is missing, or one of these commands fails, skip the step. Tell me to type `/plugin marketplace add anthropics/claude-plugins-official` and then `/plugin install superpowers@claude-plugins-official` in Claude Code, or to add it from the app's plugin screen.
-6. Blocks. If any settings file sets `disableAllHooks`, or company policy blocks hooks, plugins or downloads, say which.
-7. Report. Show a table with the columns Item, Done or skipped, Why. Then tell me to restart Claude Code.
+3. humanizer. Put `https://github.com/blader/humanizer` into `~/.claude/skills/humanizer/`. Use `git clone --depth 1`, or download the repo zip if git is missing. Replace an old copy. Delete its `.git` folder. The folder must contain `SKILL.md`.
+4. Blocks. If any settings file sets `disableAllHooks`, or company policy blocks hooks or downloads, say which.
+5. Report. Show a table with the columns Item, Done or skipped, Why. Then tell me to restart Claude Code.
 ````
+
+## Install these yourself
+
+The Full prompt does not install these two. Do it by hand.
+
+- **superpowers** (gives "brainstorm" and debugging): in Claude Code, type `/plugin marketplace add anthropics/claude-plugins-official`, then `/plugin install superpowers@claude-plugins-official`. You can also add it from the app's plugin screen.
+- **grilling** (gives "grill me"): save https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grilling/SKILL.md as `~/.claude/skills/grilling/SKILL.md`. The source is https://github.com/mattpocock/skills.
+
+The "My words" rules call these 2 skills, so install them to use "brainstorm", "grill me" and "bug".
 
 ## Claude chat app
 
@@ -115,7 +120,7 @@ If you do not see a style menu, paste the same text into Settings > Profile > pe
 1. Restart Claude Code.
 2. Ask: "What is your output style?" The answer must say ELI5.
 3. Ask Claude to run a command with long output, such as `npm install --verbose` in a test folder. The output starts with `[quiet-hook]`.
-4. Say "grill me". Claude uses the grilling skill.
+4. If you installed grilling, say "grill me". Claude uses the grilling skill.
 
 ## Update
 
@@ -127,8 +132,8 @@ Run the same prompt again. The markers stop a second copy of the rules. The hook
 2. Remove `outputStyle` from `~/.claude/settings.json`.
 3. Delete the marked block from `~/.claude/CLAUDE.md`. It runs from `<!-- onboard:work-rules start -->` to `<!-- onboard:work-rules end -->`.
 4. Remove the quiet-noisy hook entry from `~/.claude/settings.json`. Delete `~/.claude/hooks/quiet-noisy.js`.
-5. Delete the folders `~/.claude/skills/grilling` and `~/.claude/skills/humanizer`.
-6. Uninstall the superpowers plugin with `/plugin`.
+5. Delete the folder `~/.claude/skills/humanizer`. If you installed grilling by hand, delete `~/.claude/skills/grilling` too.
+6. If you installed superpowers, uninstall it with `/plugin`.
 
 ## Notes
 
