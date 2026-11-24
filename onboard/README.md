@@ -87,12 +87,12 @@ Use this prompt when you have internet. It adds the hook and the skills. It does
 Paste it into Claude Code:
 
 ````text
-(Colleagues: if you want normal answers instead of short plain ones, delete step 1 before you send this.)
-
 Install my Claude Code tools. Keep everything that already exists. If a step fails or is blocked (download blocked, company policy, missing program), skip it, go on, and report it at the end. Do not ask me anything.
 
+`~` means my home folder. In commands, use the full path (for example `$HOME/...`), because some shells do not expand `~`.
+
 1. Run `node --version`. If Node is missing, skip step 2 and say so.
-2. Hook. Download `https://raw.githubusercontent.com/jasonlohyp/skills/main/hooks/quiet-noisy/quiet-noisy.js` to `~/.claude/hooks/quiet-noisy.js`. In `~/.claude/settings.json`, under `hooks.PreToolUse`, add this entry only if no existing entry already mentions `quiet-noisy.js`: `{"matcher": "Bash|PowerShell", "hooks": [{"type": "command", "command": "node \"$HOME/.claude/hooks/quiet-noisy.js\"", "timeout": 10}]}`. Keep all other keys and entries. Then test it: pipe `{"tool_name":"Bash","tool_input":{"command":"npm test"}}` into `node ~/.claude/hooks/quiet-noisy.js`. The output must contain `--filter`.
+2. Hook. Download `https://raw.githubusercontent.com/jasonlohyp/skills/main/hooks/quiet-noisy/quiet-noisy.js` to `~/.claude/hooks/quiet-noisy.js`. In `~/.claude/settings.json`, under `hooks.PreToolUse`, add this entry only if no existing entry already mentions `quiet-noisy.js`: `{"matcher": "Bash|PowerShell", "hooks": [{"type": "command", "command": "node \"$HOME/.claude/hooks/quiet-noisy.js\"", "timeout": 10}]}`. Keep all other keys and entries. Then test it: pipe `{"tool_name":"Bash","tool_input":{"command":"npm test"}}` into `node "$HOME/.claude/hooks/quiet-noisy.js"`. The output must contain `--filter`.
 3. grilling. Download `https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grilling/SKILL.md` to `~/.claude/skills/grilling/SKILL.md`. Replace an old copy.
 4. humanizer. Put `https://github.com/blader/humanizer` into `~/.claude/skills/humanizer/`. Use `git clone --depth 1`, or download the repo zip if git is missing. Replace an old copy. Delete its `.git` folder. The folder must contain `SKILL.md`.
 5. superpowers. If the `claude` command exists, run `claude plugin install superpowers@claude-plugins-official`. If not, tell me to type `/plugin install superpowers@claude-plugins-official` in Claude Code, or to add it from the app's plugin screen.
@@ -114,7 +114,7 @@ If you do not see a style menu, paste the same text into Settings > Profile > pe
 
 1. Restart Claude Code.
 2. Ask: "What is your output style?" The answer must say ELI5.
-3. Ask Claude to run a noisy command, for example `npm install --verbose` in a test folder. The output starts with `[quiet-hook]`.
+3. Ask Claude to run a command with long output, such as `npm install --verbose` in a test folder. The output starts with `[quiet-hook]`.
 4. Say "grill me". Claude uses the grilling skill.
 
 ## Update
