@@ -14,18 +14,18 @@ Every step skips and reports instead of failing. This helps on a company laptop 
 
 ## Quick setup
 
-Use this prompt when downloads are blocked. It needs no internet. It sets up the style and the work rules only.
+Everyone runs this prompt first. It needs no internet. It sets up the style and the work rules only. Then run the Full prompt if you want the hook.
 
 Paste it into Claude Code:
 
 ````text
 (Colleagues: if you want normal answers instead of short plain ones, delete step 1 before you send this.)
 
-Set up my work style on this computer. Keep everything that already exists. Do not ask me anything. Report at the end.
+Set up my work style on this computer. Keep everything that already exists. Do not ask me anything. Report at the end. If a step is blocked or fails, skip it and report it. If `settings.json` is not valid JSON, do not change it; skip and report.
 
 Step 1, style. Write the text between STYLE START and STYLE END to `~/.claude/output-styles/ELI5.md`. Create the folder if needed. In `~/.claude/settings.json`, set `"outputStyle": "ELI5"`. Create the file if it is missing. Keep all other keys. Keep the file valid JSON.
 
-Step 2, rules. In `~/.claude/CLAUDE.md` (create it if missing), put the text between RULES START and RULES END between the marker lines `<!-- onboard:work-rules start -->` and `<!-- onboard:work-rules end -->`. If the markers already exist, replace only what is between them. If not, add the block at the end of the file. Keep everything else in the file.
+Step 2, rules. In `~/.claude/CLAUDE.md` (create it if missing), put the text between RULES START and RULES END between the marker lines `<!-- onboard:work-rules start -->` and `<!-- onboard:work-rules end -->`. If the markers already exist, replace only what is between them. If not, add the block at the end of the file. Keep everything else in the file. If only one marker exists, do not change the file; skip and report.
 
 Step 3, report. List each file you changed. List each step you skipped and why. Tell me to restart Claude Code.
 
@@ -89,7 +89,7 @@ Install my Claude Code tools. Keep everything that already exists. If a step fai
 `~` means my home folder. In commands, use the full path (for example `$HOME/...`), because some shells do not expand `~`.
 
 1. Run `node --version`. If Node is missing, skip step 2 and say so.
-2. Hook. Download `https://raw.githubusercontent.com/jasonlohyp/skills/main/hooks/quiet-noisy/quiet-noisy.js` to `~/.claude/hooks/quiet-noisy.js`. In `~/.claude/settings.json`, under `hooks.PreToolUse`, add this entry only if no existing entry already mentions `quiet-noisy.js`: `{"matcher": "Bash|PowerShell", "hooks": [{"type": "command", "command": "node \"$HOME/.claude/hooks/quiet-noisy.js\"", "timeout": 10}]}`. Keep all other keys and entries. Then test it: pipe `{"tool_name":"Bash","tool_input":{"command":"npm test"}}` into `node "$HOME/.claude/hooks/quiet-noisy.js"`. The output must contain `--filter`.
+2. Hook. Download `https://raw.githubusercontent.com/jasonlohyp/skills/main/hooks/quiet-noisy/quiet-noisy.js` to `~/.claude/hooks/quiet-noisy.js`. In `~/.claude/settings.json`, under `hooks.PreToolUse`, add this entry only if no existing entry already mentions `quiet-noisy.js`: `{"matcher": "Bash|PowerShell", "hooks": [{"type": "command", "command": "node \"$HOME/.claude/hooks/quiet-noisy.js\"", "timeout": 10}]}`. Keep all other keys and entries. If the download fails, do not add the settings entry. If an entry for `quiet-noisy.js` exists with matcher `Bash`, change it to `Bash|PowerShell`. Then test it: pipe `{"tool_name":"Bash","tool_input":{"command":"npm test"}}` into `node "$HOME/.claude/hooks/quiet-noisy.js"`. The output must contain `--filter`.
 3. Blocks. If any settings file sets `disableAllHooks`, or company policy blocks hooks or downloads, say which.
 4. Report. Show a table with the columns Item, Done or skipped, Why. Then tell me to restart Claude Code.
 ````
@@ -118,11 +118,11 @@ If you do not see a style menu, paste the same text into Settings > Profile > pe
 
 1. Restart Claude Code.
 2. Ask: "What is your output style?" The answer must say ELI5.
-3. Ask Claude to run a command with long output, such as `npm install --verbose` in a test folder. The output starts with `[quiet-hook]`.
+3. Ask Claude to run a command with long output, such as `npm install --verbose express` in a test folder (only if you ran the Full prompt and have Node). The output starts with `[quiet-hook]`.
 
 ## Update
 
-Run the same prompt again. The markers stop a second copy of the rules. The hook check stops a second hook entry.
+Run the Quick and Full prompts again. The markers stop a second copy of the rules. The hook check stops a second hook entry.
 
 ## Uninstall
 
@@ -130,6 +130,7 @@ Run the same prompt again. The markers stop a second copy of the rules. The hook
 2. Remove `outputStyle` from `~/.claude/settings.json`.
 3. Delete the marked block from `~/.claude/CLAUDE.md`. It runs from `<!-- onboard:work-rules start -->` to `<!-- onboard:work-rules end -->`.
 4. Remove the quiet-noisy hook entry from `~/.claude/settings.json`. Delete `~/.claude/hooks/quiet-noisy.js`.
+5. Restart Claude Code.
 
 Skills you installed yourself: remove them the way you installed them.
 
